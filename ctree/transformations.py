@@ -19,7 +19,6 @@ from ctree.visitors import NodeTransformer
 from ctree.types import get_ctype, get_common_ctype
 
 
-
 #conditional imports
 
 if sys.version_info < (3,0):
@@ -39,7 +38,6 @@ class PyCtxScrubber(NodeTransformer):
     Removes pesky ctx attributes from Python ast.Name nodes,
     yielding much cleaner python asts.
     """
-
     def visit_Name(self, node):
         node.ctx = None
         return node
