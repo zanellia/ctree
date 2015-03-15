@@ -331,9 +331,9 @@ class SymbolRef(Literal):
 
 class FunctionDecl(Statement):
     """Cite me."""
-    _fields = ['params', 'defn']
+    _fields = ['params', 'defn', 'attributes']
 
-    def __init__(self, return_type=None, name=None, params=None, defn=None):
+    def __init__(self, return_type=None, name=None, params=None, defn=None, attributes=()):
         self.return_type = return_type
         self.name = name
         self.params = params if params else []
@@ -341,6 +341,7 @@ class FunctionDecl(Statement):
         self.inline = False
         self.static = False
         self.kernel = False
+        self.attributes = attributes
         super(FunctionDecl, self).__init__()
 
     def get_type(self):

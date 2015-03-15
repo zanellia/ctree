@@ -44,17 +44,19 @@ class CCodeGen(CommonCodeGen):
 
     def visit_FunctionDecl(self, node):
         params = ", ".join(map(str, node.params))
-        s = ""
+        s = []
+        for attrib in node.attributes:
+            s.append("__attribute__ (({}))".format(attrib))
         if node.kernel:
-            s += "__kernel "
+            s.append("__kernel")
         if node.static:
-            s += "static "
+            s.append("static")
         if node.inline:
-            s += "inline "
-        s += "%s %s(%s)" % (codegen_type(node.return_type), node.name, params)
+            s.append("inline")
+        s.append("%s %s(%s)" % (codegen_type(node.return_type), node.name, params))
         if node.defn:
-            s += " %s" % self._genblock(node.defn)
-        return s
+            s.append("%s" % self._genblock(node.defn))
+        return " ".join(s)
 
     def visit_UnaryOp(self, node):
         op  = self._parenthesize(node, node.op)
