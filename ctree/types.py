@@ -125,6 +125,18 @@ def codegen_type(ctype):
             pass
     raise ValueError("No code generator defined for %s." % type(ctype))
 
+def get_suffix(ctype):
+    ctype = ctype if isinstance(ctype, type) else type(ctype)
+    size = ctypes.sizeof(ctype)
+    suffix = ""
+    if size >= ctypes.sizeof(ctypes.c_ulong):
+        suffix += "l"
+    if size > ctypes.sizeof(ctypes.c_ulonglong):
+        suffix += "l"
+    if ctype(-1).value > 0:  # if it becomes positive it indicates unsigned
+        suffix += "u"
+    return suffix
+
 
 def get_common_ctype(ctypes_list):
     """

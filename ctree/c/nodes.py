@@ -244,7 +244,14 @@ class Constant(Literal):
     def get_type(self):
         return get_ctype(self.value)
 
-class Hex(Constant):
+class Number(Constant):
+    def __init__(self, value, ctype=ctypes.c_uint32):
+        self.ctype = ctype
+        super(Number, self).__init__(value)
+    def get_type(self):
+        return self.ctype
+
+class Hex(Number):
     pass
 
 

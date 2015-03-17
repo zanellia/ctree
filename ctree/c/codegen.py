@@ -4,7 +4,7 @@ Code generator for C constructs.
 
 from ctree.codegen import CodeGenVisitor
 from ctree.c.nodes import Op
-from ctree.types import codegen_type
+from ctree.types import codegen_type, get_suffix
 from ctree.precedence import UnaryOp, BinaryOp, TernaryOp, Cast
 from ctree.precedence import get_precedence, is_left_associative
 
@@ -163,6 +163,8 @@ class CCodeGen(CommonCodeGen):
         return "{%s}" % ', '.join([i.codegen() for i in node.body])
 
     def visit_Hex(self, node):
-        return hex(node.value)
+        return hex(node.value) + get_suffix(node.ctype)
 
+    def visit_Number(self, node):
+        return str(node.value) + get_suffix(node.ctype)
 
