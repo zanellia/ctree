@@ -476,7 +476,7 @@ class ArrayDef(Expression):
 class Array(Expression):
     _fields = ['type', 'size', 'body']
 
-    def __init__(self, type=None, size = None, body = None):
+    def __init__(self, type=None, size=None, body=None):
         self.body = body or []
         self.size = size or len(self.body)
         self.type = type
@@ -782,3 +782,11 @@ def BitShLAssign(a, b):
 
 def BitShRAssign(a, b):
     return AugAssign(a, Op.BitShR(), b)
+
+class Attribute(CNode):
+    _fields = ['target']
+    _force_parentheses = False
+
+    def __init__(self, target, attributes=()):
+        self.target = target
+        self.attributes = attributes

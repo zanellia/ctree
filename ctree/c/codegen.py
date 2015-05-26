@@ -168,3 +168,7 @@ class CCodeGen(CommonCodeGen):
     def visit_Number(self, node):
         return str(node.value) + get_suffix(node.ctype)
 
+    def visit_Attribute(self, node):
+        s = self.visit(node.target)
+        return "{target} __attribute__({items})".format(target=s, items=", ".join(node.attributes))
+
