@@ -172,3 +172,10 @@ class CCodeGen(CommonCodeGen):
         s = self.visit(node.target)
         return "{target} __attribute__({items})".format(target=s, items=", ".join(node.attributes))
 
+    def visit_Pragma(self, node):
+        stuff = self._genblock(node.body, insert_curly_brackets=node.braces)
+        if node.braces:
+            stuff = '\n\t'.join(stuff.split("\n"))
+        return '#pragma ' + node.pragma + '\n' + stuff
+
+

@@ -790,3 +790,9 @@ class Attribute(CNode):
     def __init__(self, target, attributes=()):
         self.target = target
         self.attributes = attributes
+
+class Pragma(Block):
+    def __init__(self, pragma, body=(), braces=False):
+        self.body = body
+        self.pragma = pragma
+        self.braces = braces
