@@ -57,7 +57,7 @@ class JitModule(object):
             ctree_dir = os.path.join(tempfile.gettempdir(), "ctree")
         if not os.path.exists(ctree_dir):
             os.mkdir(ctree_dir)
-        self.compilation_dir = tempfile.mkdtemp(prefix="run-", dir=ctree_dir)
+        #self.compilation_dir = tempfile.mkdtemp(prefix="run-", dir=ctree_dir)
         self.ll_module = None
         self.exec_engine = None
 
