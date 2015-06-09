@@ -45,11 +45,15 @@ class CodeGenVisitor(NodeVisitor):
 
     def _parenthesize(self, parent, child):
         """A format string that includes parentheses if needed."""
-        if self._requires_parentheses(parent, child) or \
-                child._force_parentheses is True:
-            return "(%s)" % child
-        else:
-            return "%s" % child
+        try:
+            if self._requires_parentheses(parent, child) or \
+                    child._force_parentheses is True:
+                return "(%s)" % child
+            else:
+                return "%s" % child
+        except AttributeError:
+            print("{} {} has no attribute _force_parentheses".format(type(child), child))
+            raise
 
     def _requires_parentheses(self, parent, child):
         """True by default."""

@@ -177,5 +177,3 @@ class CCodeGen(CommonCodeGen):
         if node.braces:
             stuff = '\n\t'.join(stuff.split("\n"))
         return '#pragma ' + node.pragma + '\n' + stuff
-
-

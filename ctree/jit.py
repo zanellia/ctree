@@ -195,12 +195,15 @@ class LazySpecializedFunction(object):
 
     @staticmethod
     def _hash(o):
-        if isinstance(o, dict):
+        if isinstance(o, dict) and type(o).__hash__ is dict.__hash__:
             return hash(frozenset(
                 LazySpecializedFunction._hash(item) for item in o.items()
             ))
         else:
-            return hash(str(o))
+            try:
+                return hash(o)
+            except TypeError:
+                return hash(str(o))
 
     def __hash__(self):
         mro = type(self).mro()
@@ -234,10 +237,10 @@ class LazySpecializedFunction(object):
 
         path_parts = [
             self.sub_dir,
+            str(type(self)),
             str(self._hash(program_config.args_subconfig)),
             str(self._hash(program_config.tuner_subconfig))
             ]
-
         for attrib in self._directory_fields:
             path_parts.append(str(deep_getattr(self, attrib)))
         filtered_parts = [

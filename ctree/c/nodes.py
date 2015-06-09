@@ -79,7 +79,7 @@ class CFile(CNode, File):
     """Represents a .c file."""
     _ext = "c"
 
-    def __init__(self, name="generated", body=None, config_target='c', path = None):
+    def __init__(self, name="generated", body=None, config_target='c', path=None):
         CNode.__init__(self)
         File.__init__(self, name, body, path)
         self.config_target = config_target
@@ -782,6 +782,8 @@ def BitShLAssign(a, b):
 
 def BitShRAssign(a, b):
     return AugAssign(a, Op.BitShR(), b)
+
+#--- NonStandard nodes
 
 class Attribute(CNode):
     _fields = ['target']
