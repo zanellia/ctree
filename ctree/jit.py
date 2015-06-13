@@ -395,7 +395,7 @@ class LazySpecializedFunction(object):
         """
         from ctree.tune import ConstantTuningDriver
 
-        return ConstantTuningDriver()
+        return ConstantTuningDriver('')
 
     def args_to_subconfig(self, args):
         """
@@ -406,7 +406,7 @@ class LazySpecializedFunction(object):
         log.warn("arguments will not influence program_config. " +
                  "Consider overriding args_to_subconfig() in %s.",
                  type(self).__name__)
-        return dict()
+        return ''
 
     @staticmethod
     def apply(*args):
