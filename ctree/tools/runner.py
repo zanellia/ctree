@@ -157,7 +157,7 @@ def wipe_cache():
         if os.path.split(directory)[-1] == cache_name:
             shutil.rmtree(directory)
         else:
-            print("{}    ".format(directory))
+            #print("{}    ".format(directory))
             for sub_item in os.listdir(directory):
                 wipe_queue.append(os.path.join(directory, sub_item))
     print()

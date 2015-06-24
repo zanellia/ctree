@@ -91,7 +91,8 @@ class DeclarationFiller(ast.NodeTransformer):
                 # temporary variable types can be derived from the variables
                 # that they represent
                 if name.name.startswith('____temp__'):
-                    stripped_name = name.name.lstrip('____temp__')
+                    stripped_name = name.name[len('____temp__'):]  # really funky bug
+                    #print(name.name, stripped_name, self.__environments[-1])
                     if self._has_key(stripped_name):
                         node.left.type = self._lookup(stripped_name)
                     elif hasattr(value, 'get_type'):
