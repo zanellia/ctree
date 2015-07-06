@@ -164,10 +164,15 @@ class LazySpecializedFunction(object):
             self.NameExtractor().visit(self.original_tree) or \
             hex(hash(self))[2:]
         self.backend_name = backend_name
+        self.__hash = None
 
     @property
     def original_tree(self):
         return copy.deepcopy(self._original_tree)
+
+    @property
+    def tree(self):
+        return self._original_tree
 
     @original_tree.setter
     def original_tree(self, value):
@@ -206,23 +211,30 @@ class LazySpecializedFunction(object):
                 return hash(str(o))
 
     def __hash__(self):
-        mro = type(self).mro()
-        result = hashlib.sha512(''.encode())
-        for klass in mro:
-            if issubclass(klass, LazySpecializedFunction):
-                try:
-                    result.update(inspect.getsource(klass).encode())
-                except IOError:
-                    # means source can't be found. Well, can't do anything
-                    # about that I don't think
-                    pass
-            else:
-                pass
-        if self.original_tree is not None:
-            tree_str = ast.dump(self.original_tree,
-                                annotate_fields=True, include_attributes=True)
-            result.update(tree_str.encode())
-        return int(result.hexdigest(), 16)
+        # mro = type(self).mro()
+        # result = hashlib.sha512(''.encode())
+        # for klass in mro:
+        #     if issubclass(klass, LazySpecializedFunction):
+        #         try:
+        #             result.update(inspect.getsource(klass).encode())
+        #         except IOError:
+        #             # means source can't be found. Well, can't do anything
+        #             # about that I don't think
+        #             pass
+        #     else:
+        #         pass
+        # if self.original_tree is not None:
+        #     tree_str = ast.dump(self.original_tree,
+        #                         annotate_fields=True, include_attributes=True)
+        #     result.update(tree_str.encode())
+        # return int(result.hexdigest(), 16)
+        if self.__hash is not None:
+            return self.__hash
+        self_hash = hash(inspect.getsource(type(self)).encode())
+        #self_hash = 1
+        tree_hash = hash(ast.dump(self._original_tree, annotate_fields=True, include_attributes=True))
+        self.__hash = self_hash * tree_hash
+        return self.__hash
 
     def config_to_dirname(self, program_config):
         """Returns the subdirectory name under .compiled/funcname"""
