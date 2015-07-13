@@ -152,6 +152,7 @@ class LazySpecializedFunction(object):
                         return res
 
     def __init__(self, py_ast=None, sub_dir=None, backend_name="default"):
+        self.__hash = None
         if py_ast is not None and \
                 self.apply is not LazySpecializedFunction.apply:
             raise TypeError('Cannot define apply and pass py_ast')
@@ -164,7 +165,7 @@ class LazySpecializedFunction(object):
             self.NameExtractor().visit(self.original_tree) or \
             hex(hash(self))[2:]
         self.backend_name = backend_name
-        self.__hash = None
+
 
     @property
     def original_tree(self):
@@ -230,7 +231,10 @@ class LazySpecializedFunction(object):
         # return int(result.hexdigest(), 16)
         if self.__hash is not None:
             return self.__hash
-        self_hash = hash(inspect.getsource(type(self)).encode())
+        try:
+            self_hash = hash(inspect.getsource(type(self)).encode())
+        except TypeError:
+            self_hash = 1
         #self_hash = 1
         tree_hash = hash(ast.dump(self._original_tree, annotate_fields=True, include_attributes=True))
         self.__hash = self_hash * tree_hash
