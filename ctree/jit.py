@@ -152,7 +152,7 @@ class LazySpecializedFunction(object):
                         return res
 
     def __init__(self, py_ast=None, sub_dir=None, backend_name="default"):
-        self.__hash = None
+        self._hash_cache = None
         if py_ast is not None and \
                 self.apply is not LazySpecializedFunction.apply:
             raise TypeError('Cannot define apply and pass py_ast')
@@ -229,16 +229,16 @@ class LazySpecializedFunction(object):
         #                         annotate_fields=True, include_attributes=True)
         #     result.update(tree_str.encode())
         # return int(result.hexdigest(), 16)
-        if self.__hash is not None:
-            return self.__hash
+        if self._hash_cache is not None:
+            return self._hash_cache
         try:
             self_hash = hash(inspect.getsource(type(self)).encode())
         except TypeError:
             self_hash = 1
         #self_hash = 1
         tree_hash = hash(ast.dump(self._original_tree, annotate_fields=True, include_attributes=True))
-        self.__hash = self_hash * tree_hash
-        return self.__hash
+        self._hash_cache = self_hash * tree_hash
+        return self._hash_cache
 
     def config_to_dirname(self, program_config):
         """Returns the subdirectory name under .compiled/funcname"""
