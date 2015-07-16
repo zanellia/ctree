@@ -4,8 +4,14 @@ import ctypes as ct
 
 
 class DeclarationFiller(ast.NodeTransformer):
+    default_function_retvals = {
+        'fmin': ct.c_double(),
+        'fmax': ct.c_double(),
+        'fabs': ct.c_double()
+    }
+
     def __init__(self):
-        self.__environments = [{}]
+        self.__environments = [self.default_function_retvals.copy()]
 
     def _lookup(self, key):
         """
