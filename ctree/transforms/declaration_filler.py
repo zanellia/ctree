@@ -79,6 +79,7 @@ class DeclarationFiller(ast.NodeTransformer):
 
     def visit_BinaryOp(self, node):
         if isinstance(node.op, C.Op.Assign):
+            #print(node)
             node.left = self.visit(node.left)
             if isinstance(node.left, C.BinaryOp):
                 return node
