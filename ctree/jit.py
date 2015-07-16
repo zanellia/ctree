@@ -273,12 +273,6 @@ class LazySpecializedFunction(object):
         except TypeError:
             args_subconfig = self.args_to_subconfig(args)
 
-        try:
-            self._tuner.configs.send((args, args_subconfig))
-        except TypeError as e:  # either just instantiated or something else:
-            if e.message != "can't send non-None value to a just-started generator":
-                raise  # only catching the init problem
-            pass
         tuner_subconfig = next(self._tuner.configs)
         log.info("tuner subconfig: %s", tuner_subconfig)
         log.info("arguments subconfig: %s", args_subconfig)
