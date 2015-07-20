@@ -422,7 +422,7 @@ class LazySpecializedFunction(object):
         log.warn("arguments will not influence program_config. " +
                  "Consider overriding args_to_subconfig() in %s.",
                  type(self).__name__)
-        return ''
+        return {}
 
     @staticmethod
     def apply(*args):

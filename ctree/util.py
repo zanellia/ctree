@@ -7,6 +7,9 @@ from textwrap import dedent
 import ctree
 import time
 
+import functools
+import operator
+
 
 def singleton(cls):
     instance = cls()
@@ -15,10 +18,7 @@ def singleton(cls):
 
 
 def product(nums):
-    result = 1
-    for x in nums:
-        result *= x
-    return result
+    return functools.reduce(operator.mul, nums, 1)
 
 
 def strides(shape):
