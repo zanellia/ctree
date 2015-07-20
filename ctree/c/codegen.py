@@ -105,6 +105,8 @@ class CCodeGen(CommonCodeGen):
             s += "const "
         if node.type is not None:
             s += "%s " % codegen_type(node.type)
+        if node._restrict:
+            s += "restrict "
         return "%s%s" % (s, node.name)
 
     def visit_Block(self, node):
