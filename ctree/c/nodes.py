@@ -290,7 +290,7 @@ class SymbolRef(Literal):
     _fields = ['name','type']
 
     def __init__(self, name=None, sym_type=None, _global=False,
-                 _local=False, _const=False, _static=False):
+                 _local=False, _const=False, _static=False, _restrict=False):
         """
         Create a new symbol with the given name. If a declaration
         type is specified, the symbol is considered a declaration
@@ -304,7 +304,8 @@ class SymbolRef(Literal):
         self._global = _global
         self._local = _local
         self._const = _const
-        self._static =  _static
+        self._static = _static
+        self._restrict = _restrict
         super(SymbolRef, self).__init__()
 
     def set_global(self, value=True):
@@ -321,6 +322,10 @@ class SymbolRef(Literal):
 
     def set_static(self, value=True):
         self._static = value
+        return self
+
+    def set_restrict(self, value=True):
+        self._restrict = value
         return self
 
     @classmethod
