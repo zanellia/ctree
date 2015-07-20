@@ -1,6 +1,8 @@
 import unittest
 
 from ctree.c.nodes import *
+from ctree.transformations import PyBasicConversions
+import ast
 
 
 class TestUnaryOps(unittest.TestCase):
@@ -43,3 +45,31 @@ class TestUnaryOps(unittest.TestCase):
 
     def test_sizeof(self):
         self._check(SizeOf, "sizeof foo")
+
+class TestPythonUnaryOps(unittest.TestCase):
+
+    def setUp(self):
+        self.foo = SymbolRef("foo")
+
+    def _check(self, op, expected_string):
+        self.assertEqual(str(op), expected_string)
+
+    def test_plus(self):
+        op = ast.parse("+ foo")
+        op = PyBasicConversions().visit(op).find(UnaryOp)
+        self._check(op, "+ foo")
+
+    def test_minus(self):
+        op = ast.parse("- foo")
+        op = PyBasicConversions().visit(op).find(UnaryOp)
+        self._check(op, "- foo")
+
+    def test_bitnot(self):
+        op = ast.parse("~ foo")
+        op = PyBasicConversions().visit(op).find(UnaryOp)
+        self._check(op, "~ foo")
+
+    def test_not(self):
+        op = ast.parse("not foo")
+        op = PyBasicConversions().visit(op).find(UnaryOp)
+        self._check(op, "! foo")
