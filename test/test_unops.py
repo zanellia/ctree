@@ -47,10 +47,6 @@ class TestUnaryOps(unittest.TestCase):
         self._check(SizeOf, "sizeof foo")
 
 class TestPythonUnaryOps(unittest.TestCase):
-
-    def setUp(self):
-        self.foo = SymbolRef("foo")
-
     def _check(self, op, expected_string):
         self.assertEqual(str(op), expected_string)
 
