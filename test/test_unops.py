@@ -46,7 +46,7 @@ class TestUnaryOps(unittest.TestCase):
     def test_sizeof(self):
         self._check(SizeOf, "sizeof foo")
 
-class TestPythonUnaryOps(unittest.TestCase):
+class TestPyBasicConversionsUnaryOps(unittest.TestCase):
     def _check(self, op, expected_string):
         self.assertEqual(str(op), expected_string)
 
@@ -69,3 +69,8 @@ class TestPythonUnaryOps(unittest.TestCase):
         op = ast.parse("not foo")
         op = PyBasicConversions().visit(op).find(UnaryOp)
         self._check(op, "! foo")
+
+    def test_CUnaryOp(self):
+        op = Not(SymbolRef("foo"))
+        op = PyBasicConversions().visit(op).find(UnaryOp)
+        self._check(str(op), "! foo")
