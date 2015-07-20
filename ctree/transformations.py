@@ -81,7 +81,8 @@ class PyBasicConversions(NodeTransformer):
         ast.IsNot: Op.NotEq,
         ast.USub: Op.SubUnary,
         ast.UAdd: Op.AddUnary,
-        ast.FloorDiv: Op.Div
+        ast.FloorDiv: Op.Div,
+        ast.Invert: Op.BitNot
         # TODO list the rest
     }
 
