@@ -417,6 +417,10 @@ class BinaryOp(Expression):
             right_type = self.right.type
         else:
             right_type = None
+        if isinstance(self.op, Op.ArrayRef):
+            return left_type._type_()
+        if isinstance(self.op, Op.Dot):
+            return right_type
         return get_common_ctype(filter(lambda x: x is not None, [right_type,
                                                                  left_type]))
 
