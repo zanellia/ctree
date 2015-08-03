@@ -105,6 +105,10 @@ class TestBinaryOpTypeInference(CtreeTest):
     def test_dot(self):
         op = SymbolRef("op")
         setattr(op, "get_type", lambda: ctypes.c_char())
-        tree = Assign(SymbolRef("x"), Dot(SymbolRef("foo"), op))
+
+        foo = SymbolRef("foo")
+        setattr(foo, "get_type", lambda: ctypes.c_double())
+
+        tree = Assign(SymbolRef("____temp__x"), Dot(foo, op))
         DeclarationFiller().visit(tree)
-        self._check_code(tree, "char x = foo . op")
+        self._check_code(tree, "char ____temp__x = foo . op")
