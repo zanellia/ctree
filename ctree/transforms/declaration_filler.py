@@ -62,6 +62,12 @@ class DeclarationFiller(ast.NodeTransformer):
         self.__pop_environment()
         return node
 
+    def visit_For(self, node):
+        self.__add_environment()
+        self.generic_visit(node)
+        self.__pop_environment()
+        return node
+
     def visit_SymbolRef(self, node):
 
         if node.type is not None:

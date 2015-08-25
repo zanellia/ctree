@@ -18,7 +18,7 @@ import tempfile
 import ctree
 from ctree.nodes import Project
 from ctree.analyses import VerifyOnlyCtreeNodes
-from ctree.frontend import get_ast
+from ctree.frontend import get_ast, dump
 from ctree.transforms import DeclarationFiller
 from ctree.c.nodes import CFile, MultiNode
 if ctree.OCL_ENABLED:
@@ -236,7 +236,7 @@ class LazySpecializedFunction(object):
         except TypeError:
             self_hash = 1
         #self_hash = 1
-        tree_hash = hash(ast.dump(self._original_tree, annotate_fields=True, include_attributes=True))
+        tree_hash = hash(dump(self._original_tree, annotate_fields=True, include_attributes=True))
         self._hash_cache = self_hash * tree_hash
         return self._hash_cache
 
@@ -272,7 +272,11 @@ class LazySpecializedFunction(object):
             args_subconfig = self.args_to_subconfig(args, kwargs)
         except TypeError:
             args_subconfig = self.args_to_subconfig(args)
-
+        try:
+            self._tuner.configs.send((args, args_subconfig))
+        except TypeError:
+            "Can't send into an unstarted generator"
+            pass
         tuner_subconfig = next(self._tuner.configs)
         log.info("tuner subconfig: %s", tuner_subconfig)
         log.info("arguments subconfig: %s", args_subconfig)
