@@ -10,6 +10,8 @@ class DeclarationFiller(ast.NodeTransformer):
         'fabs': ct.c_double()
     }
 
+    tmp_prefix = "____temp__"
+
     def __init__(self):
         self.__environments = [self.default_function_retvals.copy()]
 
@@ -103,7 +105,8 @@ class DeclarationFiller(ast.NodeTransformer):
                 # temporary variable types can be derived from the variables
                 # that they represent
                 if name.name.startswith('____temp__'):
-                    stripped_name = name.name.lstrip('____temp__')
+                    stripped_name = name.name[len(self.tmp_prefix):]
+                    #print(stripped_name)
                     if self._has_key(stripped_name):
                         node.left.type = self._lookup(stripped_name)
                     elif hasattr(value, 'get_type'):

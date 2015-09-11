@@ -446,7 +446,6 @@ class AugAssign(Expression):
         self.value = value
         super(AugAssign, self).__init__()
 
-
 class TernaryOp(Expression):
     """Cite me."""
     _fields = ['cond', 'then', 'elze']
