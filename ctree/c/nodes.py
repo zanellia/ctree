@@ -241,7 +241,7 @@ class Constant(Literal):
         self.value = value
         super(Constant, self).__init__()
 
-    def get_type(self):
+    def get_type(self, env=None):
         return get_ctype(self.value)
 
 class Hex(Constant):
@@ -343,7 +343,7 @@ class FunctionDecl(Statement):
         self.kernel = False
         super(FunctionDecl, self).__init__()
 
-    def get_type(self):
+    def get_type(self, env=None):
         type_sig = []
 
         # return type
@@ -478,7 +478,7 @@ class Array(Expression):
         self.type = type
         super(Array, self).__init__()
 
-    def get_type(self):
+    def get_type(self, env=None):
         return self.type
 
 class Break(Statement):
