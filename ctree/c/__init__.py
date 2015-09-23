@@ -30,6 +30,7 @@ else:
     X64_BIT = False
 
 register_type_codegenerators({
+    ctypes.c_short: lambda t: "short",
     ctypes.c_int: lambda t: "int",
     ctypes.c_long: lambda t: "long" if X64_BIT else "int",
     ctypes.c_float: lambda t: "float",

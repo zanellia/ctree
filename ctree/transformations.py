@@ -4,7 +4,7 @@ A set of basic transformers for python asts
 import os
 import sys
 import ast
-from ctypes import c_long, c_int, c_byte, c_short, c_char_p, c_void_p
+from ctypes import c_long, c_int, c_byte, c_short, c_char_p, c_void_p, c_float
 import ctypes
 from collections import deque
 
@@ -12,7 +12,7 @@ import ctree
 from ctree.c.nodes import Constant, String, SymbolRef, BinaryOp, TernaryOp, \
     Return, While, MultiNode, UnaryOp
 from ctree.c.nodes import If, CFile, FunctionCall, FunctionDecl, For, Assign, \
-    ArrayRef
+    ArrayRef, Cast
 from ctree.nodes import CtreeNode
 from ctree.c.nodes import Lt, Gt, AddAssign
 from ctree.c.nodes import Break, Continue, Pass, Array, Literal, And
@@ -233,6 +233,8 @@ class PyBasicConversions(NodeTransformer):
             node.args = args
             node.starargs = self.visit(node.starargs)
             return node
+        if fn.name == "float":
+            return Cast(c_float(), args[0])
         return FunctionCall(fn, args)
 
     def visit_Expr(self, node):
@@ -324,7 +326,10 @@ class PyBasicConversions(NodeTransformer):
         target_value_list = [(self.visit(target), self.visit(value))
                              for target, value in self.parse_pairs(node)]
 
-        # making a multinode no matter what. It's cleaner than branching a lot
+        if len(target_value_list) == 1:
+            target, value = target_value_list[0]
+            return Assign(target, value)
+
         operation_body = []
         swap_body = []
         for target, value in target_value_list:

@@ -14,7 +14,7 @@ from ctypes import CFUNCTYPE
 from ctree.nodes import CtreeNode, File
 import ctree
 from ctree.util import singleton, highlight, truncate
-from ctree.types import get_ctype, get_common_ctype
+from ctree.types import get_ctype, get_common_ctype, get_c_type_from_numpy_dtype
 import hashlib
 import ctypes
 
@@ -398,6 +398,12 @@ class BinaryOp(Expression):
         super(BinaryOp, self).__init__()
 
     def get_type(self, env=None):
+        if isinstance(self.op, Op.ArrayRef):
+            if isinstance(self.left, SymbolRef) and env is not None \
+                    and env._has_key(self.left.name):
+                type = env._lookup(self.left.name)._dtype_
+                return get_c_type_from_numpy_dtype(type)()
+
         # FIXME: integer promotions and stuff like that
         if hasattr(self.left, 'get_type'):
             left_type = self.left.get_type()

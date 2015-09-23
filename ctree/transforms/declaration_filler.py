@@ -66,6 +66,8 @@ class DeclarationFiller(ast.NodeTransformer):
         node.args = [self.visit(arg) for arg in node.args]
         if self._has_key(node.func):
             node.type = self._lookup(node.func)
+        elif node.func.name == 'float':
+            node.type = ct.c_float()
         elif node.func.name in {'fmax', 'fmin'}:
             # Assume type of last argument for now
             # TODO: Is there something smarter we can do?
@@ -96,13 +98,15 @@ class DeclarationFiller(ast.NodeTransformer):
                         node.left.type = self._lookup(stripped_name)
                     elif hasattr(value, 'get_type'):
                         node.left.type = value.get_type(self)
+                    elif hasattr(value, 'type'):
+                        node.left.type = value.type
                     elif isinstance(value, C.FunctionCall):
                         if self._has_key(value.func):
                             node.left.type = self._lookup(value.func)
-                        elif hasattr(value, 'type'):
-                            node.left.type = value.type
                 elif hasattr(value, 'get_type'):
-                    node.left.type = value.get_type()
+                    node.left.type = value.get_type(self)
+                elif hasattr(value, 'type'):
+                    node.left.type = value.type
                 elif isinstance(value, C.String):
                     node.left.type = ct.c_char_p()
                 elif isinstance(value, C.SymbolRef):
