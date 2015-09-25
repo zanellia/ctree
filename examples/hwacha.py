@@ -79,6 +79,14 @@ class HwachaTranslator(LazySpecializedFunction):
         return HwachaFN().finalize("apply", proj, entry_type)
 
 
+def hwacha_map(fn, *args):
+    mapfn = HwachaTranslator.from_function(fn, "map")
+    retval = np.empty_like(args[0])
+    args += (retval, )
+    mapfn(*args)
+    return retval
+
+
 CALIBRATE_COLD = 0x7000
 CALIBRATE_HOT  = 0xA000
 
@@ -86,12 +94,12 @@ SIZE = (208 * 156)
 
 # Generate a dummy calibration table, just so there's something
 # to execute.
-cold = np.full(SIZE, CALIBRATE_COLD, np.int16)
-hot  = np.full(SIZE, CALIBRATE_HOT, np.int16)
+cold = np.full(SIZE, CALIBRATE_COLD, np.int32)
+hot  = np.full(SIZE, CALIBRATE_HOT, np.int32)
 
 # Generate a dummy input image, again just so there's something
 # to execute.
-raw  = np.empty(SIZE, np.int16)
+raw  = np.empty(SIZE, np.int32)
 
 for i in range(SIZE):
     scale = (CALIBRATE_HOT - CALIBRATE_COLD)
@@ -124,12 +132,10 @@ def test_map(cold, hot, raw):
     scaled = 0.0 if scaled < 0.0 else scaled
     return 255 * scaled
 
-test = HwachaTranslator.from_function(test_map, "test")
 
 flat_gold = np.empty_like(raw)
 gold(cold, hot, raw, flat_gold)
 
-flat_test = np.empty_like(raw)
-test(cold, hot, raw, flat_test)
+flat_test = hwacha_map(test_map, cold, hot, raw)
 
 np.testing.assert_array_equal(flat_gold, flat_test)
