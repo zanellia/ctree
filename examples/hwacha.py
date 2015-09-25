@@ -37,7 +37,7 @@ class MapTransformer(ast.NodeTransformer):
     def visit_Return(self, node):
         node.value = self.visit(node.value)
         return C.Assign(C.ArrayRef(C.SymbolRef(self.retval_name),
-                                   C.SymbolRef(self.loopvar)), 
+                                   C.SymbolRef(self.loopvar)),
                         node.value)
 
 
@@ -57,7 +57,7 @@ class HwachaTranslator(LazySpecializedFunction):
 
         length = np.prod(arg_cfg[0]._shape_)
         transformer = MapTransformer("i", param_dict, "retval")
-        body = map(transformer.visit, tree.body[0].defn)
+        body = list(map(transformer.visit, tree.body[0].defn))
 
         tree.body[0].defn = [C.For(
             C.Assign(C.SymbolRef("i", ct.c_int()), C.Constant(0)),
