@@ -1,5 +1,14 @@
 """
 Computes matrix-matrix products via specialization.
+
+The C configuration inside ctree.cfg should include the -mavx flag in the cflags section.
+For example:
+[c]
+cc = gcc-4.9
+cflags = -mavx -O3 -mmacosx-version-min=10.6 -std=c99
+
+This program also requires the current ucb-sejits fork of opentuner:
+https://github.com/ucb-sejits/opentuner
 """
 
 import logging
@@ -35,15 +44,14 @@ def MultiArrayRef(name, *idxs):
         tree = ArrayRef(tree, Constant(idx))
     return tree
 
-
-def hello():
-    return "hello"
+def dummy_func():
+    return
 
 
 class DgemmTranslator(LazySpecializedFunction):
     def __init__(self):
         self._current_config = None
-        super(DgemmTranslator, self).__init__(ast.parse(inspect.getsource(hello)), "dgemm")
+        super(DgemmTranslator, self).__init__(ast.parse(inspect.getsource(dummy_func)), "dgemm")
 
     def get_tuning_driver(self):
         from ctree.opentuner.driver import OpenTunerDriver
