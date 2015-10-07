@@ -4,8 +4,16 @@ import ctypes as ct
 
 
 class DeclarationFiller(ast.NodeTransformer):
+    default_function_retvals = {
+        'fmin': ct.c_double(),
+        'fmax': ct.c_double(),
+        'fabs': ct.c_double()
+    }
+
+    tmp_prefix = "____temp__"
+
     def __init__(self):
-        self.__environments = [{}]
+        self.__environments = [self.default_function_retvals.copy()]
 
     def _lookup(self, key):
         """
@@ -56,6 +64,12 @@ class DeclarationFiller(ast.NodeTransformer):
         self.__pop_environment()
         return node
 
+    def visit_For(self, node):
+        self.__add_environment()
+        self.generic_visit(node)
+        self.__pop_environment()
+        return node
+
     def visit_SymbolRef(self, node):
 
         if node.type is not None:
@@ -93,7 +107,8 @@ class DeclarationFiller(ast.NodeTransformer):
                 # temporary variable types can be derived from the variables
                 # that they represent
                 if name.name.startswith('____temp__'):
-                    stripped_name = name.name.lstrip('____temp__')
+                    stripped_name = name.name[len(self.tmp_prefix):]
+                    #print(stripped_name)
                     if self._has_key(stripped_name):
                         node.left.type = self._lookup(stripped_name)
                     elif hasattr(value, 'get_type'):

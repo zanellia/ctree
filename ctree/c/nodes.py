@@ -79,7 +79,7 @@ class CFile(CNode, File):
     """Represents a .c file."""
     _ext = "c"
 
-    def __init__(self, name="generated", body=None, config_target='c', path = None):
+    def __init__(self, name="generated", body=None, config_target='c', path=None):
         CNode.__init__(self)
         File.__init__(self, name, body, path)
         self.config_target = config_target
@@ -246,7 +246,14 @@ class Constant(Literal):
     def get_type(self, env=None):
         return get_ctype(self.value)
 
-class Hex(Constant):
+class Number(Constant):
+    def __init__(self, value, ctype=ctypes.c_uint32):
+        self.ctype = ctype
+        super(Number, self).__init__(value)
+    def get_type(self):
+        return self.ctype
+
+class Hex(Number):
     pass
 
 
@@ -283,7 +290,7 @@ class SymbolRef(Literal):
     _fields = ['name','type']
 
     def __init__(self, name=None, sym_type=None, _global=False,
-                 _local=False, _const=False, _static=False):
+                 _local=False, _const=False, _static=False, _restrict=False):
         """
         Create a new symbol with the given name. If a declaration
         type is specified, the symbol is considered a declaration
@@ -297,7 +304,8 @@ class SymbolRef(Literal):
         self._global = _global
         self._local = _local
         self._const = _const
-        self._static =  _static
+        self._static = _static
+        self._restrict = _restrict
         super(SymbolRef, self).__init__()
 
     def set_global(self, value=True):
@@ -314,6 +322,10 @@ class SymbolRef(Literal):
 
     def set_static(self, value=True):
         self._static = value
+        return self
+
+    def set_restrict(self, value=True):
+        self._restrict = value
         return self
 
     @classmethod
@@ -333,9 +345,9 @@ class SymbolRef(Literal):
 
 class FunctionDecl(Statement):
     """Cite me."""
-    _fields = ['params', 'defn']
+    _fields = ['params', 'defn', 'attributes']
 
-    def __init__(self, return_type=None, name=None, params=None, defn=None):
+    def __init__(self, return_type=None, name=None, params=None, defn=None, attributes=()):
         self.return_type = return_type
         self.name = name
         self.params = params if params else []
@@ -343,6 +355,7 @@ class FunctionDecl(Statement):
         self.inline = False
         self.static = False
         self.kernel = False
+        self.attributes = attributes
         super(FunctionDecl, self).__init__()
 
     def get_type(self, env=None):
@@ -439,7 +452,6 @@ class AugAssign(Expression):
         self.value = value
         super(AugAssign, self).__init__()
 
-
 class TernaryOp(Expression):
     """Cite me."""
     _fields = ['cond', 'then', 'elze']
@@ -474,7 +486,7 @@ class ArrayDef(Expression):
 class Array(Expression):
     _fields = ['type', 'size', 'body']
 
-    def __init__(self, type=None, size = None, body = None):
+    def __init__(self, type=None, size=None, body=None):
         self.body = body or []
         self.size = size or len(self.body)
         self.type = type
@@ -780,3 +792,19 @@ def BitShLAssign(a, b):
 
 def BitShRAssign(a, b):
     return AugAssign(a, Op.BitShR(), b)
+
+#--- NonStandard nodes
+
+class Attribute(CNode):
+    _fields = ['target']
+    _force_parentheses = False
+
+    def __init__(self, target, attributes=()):
+        self.target = target
+        self.attributes = attributes
+
+class Pragma(Block):
+    def __init__(self, pragma, body=(), braces=False):
+        self.body = body
+        self.pragma = pragma
+        self.braces = braces

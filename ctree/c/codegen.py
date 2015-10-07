@@ -4,7 +4,7 @@ Code generator for C constructs.
 
 from ctree.codegen import CodeGenVisitor
 from ctree.c.nodes import Op
-from ctree.types import codegen_type
+from ctree.types import codegen_type, get_suffix
 from ctree.precedence import UnaryOp, BinaryOp, TernaryOp, Cast
 from ctree.precedence import get_precedence, is_left_associative
 
@@ -44,17 +44,19 @@ class CCodeGen(CommonCodeGen):
 
     def visit_FunctionDecl(self, node):
         params = ", ".join(map(str, node.params))
-        s = ""
+        s = []
+        for attrib in node.attributes:
+            s.append("__attribute__ (({}))".format(attrib))
         if node.kernel:
-            s += "__kernel "
+            s.append("__kernel")
         if node.static:
-            s += "static "
+            s.append("static")
         if node.inline:
-            s += "inline "
-        s += "%s %s(%s)" % (codegen_type(node.return_type), node.name, params)
+            s.append("inline")
+        s.append("%s %s(%s)" % (codegen_type(node.return_type), node.name, params))
         if node.defn:
-            s += " %s" % self._genblock(node.defn)
-        return s
+            s.append("%s" % self._genblock(node.defn))
+        return " ".join(s)
 
     def visit_UnaryOp(self, node):
         op  = self._parenthesize(node, node.op)
@@ -103,6 +105,8 @@ class CCodeGen(CommonCodeGen):
             s += "const "
         if node.type is not None:
             s += "%s " % codegen_type(node.type)
+        if node._restrict:
+            s += "restrict "
         return "%s%s" % (s, node.name)
 
     def visit_Block(self, node):
@@ -161,6 +165,17 @@ class CCodeGen(CommonCodeGen):
         return "{%s}" % ', '.join([i.codegen() for i in node.body])
 
     def visit_Hex(self, node):
-        return hex(node.value)
+        return hex(node.value) + get_suffix(node.ctype)
 
+    def visit_Number(self, node):
+        return str(node.value) + get_suffix(node.ctype)
 
+    def visit_Attribute(self, node):
+        s = self.visit(node.target)
+        return "{target} __attribute__({items})".format(target=s, items=", ".join(node.attributes))
+
+    def visit_Pragma(self, node):
+        stuff = self._genblock(node.body, insert_curly_brackets=node.braces)
+        if node.braces:
+            stuff = '\n\t'.join(stuff.split("\n"))
+        return '#pragma ' + node.pragma + '\n' + stuff

@@ -18,7 +18,7 @@ import tempfile
 import ctree
 from ctree.nodes import Project
 from ctree.analyses import VerifyOnlyCtreeNodes
-from ctree.frontend import get_ast
+from ctree.frontend import get_ast, dump
 from ctree.transforms import DeclarationFiller
 from ctree.c.nodes import CFile, MultiNode
 if ctree.OCL_ENABLED:
@@ -50,13 +50,14 @@ class JitModule(object):
 
     def __init__(self):
         import os
-
+        if ctree.CONFIG.get('jit', 'COMPILE_PATH') and ctree.CONFIG.getboolean('jit', 'CACHE'):
+            ctree_dir = ctree.CONFIG.get('jit','COMPILE_PATH')
         # write files to $TEMPDIR/ctree/run-XXXX
-        ctree_dir = os.path.join(tempfile.gettempdir(), "ctree")
+        else:
+            ctree_dir = os.path.join(tempfile.gettempdir(), "ctree")
         if not os.path.exists(ctree_dir):
             os.mkdir(ctree_dir)
-
-        self.compilation_dir = tempfile.mkdtemp(prefix="run-", dir=ctree_dir)
+        #self.compilation_dir = tempfile.mkdtemp(prefix="run-", dir=ctree_dir)
         self.ll_module = None
         self.exec_engine = None
 
@@ -151,6 +152,7 @@ class LazySpecializedFunction(object):
                         return res
 
     def __init__(self, py_ast=None, sub_dir=None, backend_name="default"):
+        self._hash_cache = None
         if py_ast is not None and \
                 self.apply is not LazySpecializedFunction.apply:
             raise TypeError('Cannot define apply and pass py_ast')
@@ -164,9 +166,14 @@ class LazySpecializedFunction(object):
             hex(hash(self))[2:]
         self.backend_name = backend_name
 
+
     @property
     def original_tree(self):
         return copy.deepcopy(self._original_tree)
+
+    @property
+    def tree(self):
+        return self._original_tree
 
     @original_tree.setter
     def original_tree(self, value):
@@ -194,31 +201,44 @@ class LazySpecializedFunction(object):
 
     @staticmethod
     def _hash(o):
-        if isinstance(o, dict):
+        if isinstance(o, dict) and type(o).__hash__ is dict.__hash__:
             return hash(frozenset(
                 LazySpecializedFunction._hash(item) for item in o.items()
             ))
         else:
-            return hash(str(o))
+            try:
+                return hash(o)
+            except TypeError:
+                return hash(str(o))
 
     def __hash__(self):
-        mro = type(self).mro()
-        result = hashlib.sha512(''.encode())
-        for klass in mro:
-            if issubclass(klass, LazySpecializedFunction):
-                try:
-                    result.update(inspect.getsource(klass).encode())
-                except IOError:
-                    # means source can't be found. Well, can't do anything
-                    # about that I don't think
-                    pass
-            else:
-                pass
-        if self.original_tree is not None:
-            tree_str = ast.dump(self.original_tree,
-                                annotate_fields=True, include_attributes=True)
-            result.update(tree_str.encode())
-        return int(result.hexdigest(), 16)
+        # mro = type(self).mro()
+        # result = hashlib.sha512(''.encode())
+        # for klass in mro:
+        #     if issubclass(klass, LazySpecializedFunction):
+        #         try:
+        #             result.update(inspect.getsource(klass).encode())
+        #         except IOError:
+        #             # means source can't be found. Well, can't do anything
+        #             # about that I don't think
+        #             pass
+        #     else:
+        #         pass
+        # if self.original_tree is not None:
+        #     tree_str = ast.dump(self.original_tree,
+        #                         annotate_fields=True, include_attributes=True)
+        #     result.update(tree_str.encode())
+        # return int(result.hexdigest(), 16)
+        if self._hash_cache is not None:
+            return self._hash_cache
+        try:
+            self_hash = hash(inspect.getsource(type(self)).encode())
+        except TypeError:
+            self_hash = 1
+        #self_hash = 1
+        tree_hash = hash(dump(self._original_tree, annotate_fields=True, include_attributes=True))
+        self._hash_cache = self_hash * tree_hash
+        return self._hash_cache
 
     def config_to_dirname(self, program_config):
         """Returns the subdirectory name under .compiled/funcname"""
@@ -233,10 +253,10 @@ class LazySpecializedFunction(object):
 
         path_parts = [
             self.sub_dir,
+            str(type(self)),
             str(self._hash(program_config.args_subconfig)),
             str(self._hash(program_config.tuner_subconfig))
             ]
-
         for attrib in self._directory_fields:
             path_parts.append(str(deep_getattr(self, attrib)))
         filtered_parts = [
@@ -252,7 +272,11 @@ class LazySpecializedFunction(object):
             args_subconfig = self.args_to_subconfig(args, kwargs)
         except TypeError:
             args_subconfig = self.args_to_subconfig(args)
-
+        try:
+            self._tuner.configs.send((args, args_subconfig))
+        except TypeError:
+            "Can't send into an unstarted generator"
+            pass
         tuner_subconfig = next(self._tuner.configs)
         log.info("tuner subconfig: %s", tuner_subconfig)
         log.info("arguments subconfig: %s", args_subconfig)
@@ -391,7 +415,7 @@ class LazySpecializedFunction(object):
         """
         from ctree.tune import ConstantTuningDriver
 
-        return ConstantTuningDriver()
+        return ConstantTuningDriver('')
 
     def args_to_subconfig(self, args):
         """
@@ -402,7 +426,7 @@ class LazySpecializedFunction(object):
         log.warn("arguments will not influence program_config. " +
                  "Consider overriding args_to_subconfig() in %s.",
                  type(self).__name__)
-        return dict()
+        return {}
 
     @staticmethod
     def apply(*args):

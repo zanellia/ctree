@@ -127,7 +127,7 @@ class Result(object):
 
 class Objective(object):
     def compare(self, result0, result1):
-        raise NotImplementedException()
+        raise NotImplementedError()
 
 
 class MinimizeTime(Objective):

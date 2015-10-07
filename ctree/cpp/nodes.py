@@ -29,6 +29,9 @@ class CppInclude(CppNode):
         self.target = target
         self.angled_brackets = angled_brackets
 
+    def __hash__(self):
+        return hash(self.target) ^ hash(self.angled_brackets)
+
 
 class CppComment(CppNode):
     """Represents // foo"""
