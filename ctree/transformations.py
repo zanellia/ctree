@@ -234,7 +234,7 @@ class PyBasicConversions(NodeTransformer):
             node.args = args
             node.starargs = self.visit(node.starargs)
             return node
-        if fn.name == "float":
+        if hasattr(fn, "name") and fn.name == "float":
             return Cast(c_float(), args[0])
         return FunctionCall(fn, args)
 
