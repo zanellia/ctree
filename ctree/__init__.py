@@ -124,8 +124,8 @@ OCL_ENABLED = True
 try:
     import pycl
 except ImportError as e:
-    print("Import error {}".format(e.message))
     OCL_ENABLED = False
+    pycl = None
 
 import ctree.np
 
