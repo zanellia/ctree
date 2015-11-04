@@ -123,7 +123,8 @@ _TYPE_RECOGNIZERS = {}
 OCL_ENABLED = True
 try:
     import pycl
-except ImportError:
+except ImportError as e:
+    print("Import error {}".format(e.message))
     OCL_ENABLED = False
 
 import ctree.np

@@ -70,4 +70,4 @@ class TestMath(unittest.TestCase):
 
     def test_flatten(self):
         l = [1, 2, 3, [4, 5, [6, 7], [8, 9]]]
-        self.assertEqual(list(flatten(l)), range(1, 10))
+        self.assertEqual(list(flatten(l)), list(range(1, 10)))
