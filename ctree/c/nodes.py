@@ -83,6 +83,9 @@ class CFile(CNode, File):
         CNode.__init__(self)
         File.__init__(self, name, body, path)
         self.config_target = config_target
+        self.local_save_file_name = None
+        if os.environ.get("CTREE_LOCAL_SAVE"):
+            self.local_save_file_name = os.environ["CTREE_LOCAL_SAVE"]
 
     def get_bc_filename(self):
         return "%s.bc" % self.name
@@ -107,6 +110,10 @@ class CFile(CNode, File):
 
         if not program_text:
             log.debug("Program not found. Attempting to use cached version")
+
+        if self.local_save_file_name:
+            with open(self.local_save_file_name, 'w') as c_file:
+                c_file.write(program_text)
 
         #create c_src
         if recreate_c_src:

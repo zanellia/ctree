@@ -94,8 +94,8 @@ def highlight(code, language='c'):
 
 class Timer:  # pragma: no cover
     def __enter__(self):
-        self.start = time.clock()
+        self.start = time.time()
         return self
 
     def __exit__(self, *args):
-        self.interval = time.clock() - self.start
+        self.interval = time.time() - self.start

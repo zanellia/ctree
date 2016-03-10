@@ -141,6 +141,6 @@ if __name__ == '__main__':
     main()
 
     # Testing lambda kernel function implementation
-    double = lambda x: x * 2
-    main()
+    # double = lambda x: x * 2
+    # main()
 
