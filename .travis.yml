@@ -8,6 +8,8 @@ python:
 env:
   global:
   - secure: QBB2KT4EFUdSkH9fjo5J/02zuZlD0FbVsKwYJgW6c4INp1UY/nx0nrsgjPSZQMD2HBztdfEZInugoVrOJwXBzWJ5Ioc19T9oYhnzaIF6oJRo1mTYDhragvdwiLfb0AyylGq7bgP4lgoMBtE1Oxauf0rKVEYiVeEhvHJup/di6A4=
+    - OPENCL_REGISTRY=https://www.khronos.org/registry/cl
+    - OPENCL_ROOT=${TRAVIS_BUILD_DIR}/bin/opencl
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq opencl-headers
@@ -15,6 +17,26 @@ install:
   - export PYTHON_VERSION=$(python -c 'import sys; print(sys.version_info[0:2])')
   - pip install -r requirements.txt
   - if [ $PY_MAJOR_MINOR \< "3.0" ]; then pip install opentuner; fi
+  - if [ ${TRAVIS_OS_NAME} == "linux" ]; then
+      mkdir -p ${OPENCL_ROOT};
+      pushd ${OPENCL_ROOT};
+      wget ${OPENCL_REGISTRY}/specs/opencl-icd-1.2.11.0.tgz;
+      tar -xf opencl-icd-1.2.11.0.tgz;
+      mv ./icd/* .;
+      mkdir -p inc/CL;
+      pushd inc/CL;
+      wget -r -w 1 -np -nd -nv -A h,hpp https://www.khronos.org/registry/cl/api/1.2/;
+      wget -w 1 -np -nd -nv -A h,hpp https://www.khronos.org/registry/cl/api/2.1/cl.hpp;
+      popd;
+      mkdir -p lib;
+      pushd lib;
+      cmake -G "Unix Makefiles" ..;
+      make;
+      cp ../bin/libOpenCL.so .;
+      popd;
+      mv inc/ include/;
+      popd;
+    fi
   - pip install coverage nose pycl
   - nosetests --version
   - coverage --version
