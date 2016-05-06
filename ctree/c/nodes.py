@@ -204,6 +204,7 @@ class DoWhile(Statement):
 
 class For(Statement):
     _fields = ['init', 'test', 'incr', 'body']
+    _requires_semicolon = lambda self: False
 
     def __init__(self, init=None, test=None, incr=None, body=None, pragma=None):
         self.init = init

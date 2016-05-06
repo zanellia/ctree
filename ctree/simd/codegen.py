@@ -11,3 +11,6 @@ class SimdCodeGen(CodeGenVisitor):
     """
     def visit_m256d(self, node):
         return "__m256d"
+
+    def visit_m256(self, node):
+        return "__m256"

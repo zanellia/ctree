@@ -9,3 +9,9 @@ class SimdType(object):
 
 class m256d(SimdType):
     pass
+
+class m256(SimdType):
+    pass
+
+class m512(SimdType):
+    pass
