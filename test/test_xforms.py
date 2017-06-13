@@ -136,6 +136,7 @@ class TestBasicConversions(unittest.TestCase):
         c_ast = SymbolRef("foo")
         self._check(py_ast, c_ast)
 
+    @unittest.skipIf(sys.version_info.major == 3, "Different ast.Call class in Python 3")
     def test_for_1_arg(self):
         stop = ast.Num(10)
         py_ast = ast.For(ast.Name("i", ast.Load()),
@@ -152,6 +153,7 @@ class TestBasicConversions(unittest.TestCase):
         )
         self._check(py_ast, c_ast)
 
+    @unittest.skipIf(sys.version_info.major == 3, "Different ast.Call class in Python 3")
     def test_for_2_args(self):
         start = ast.Num(2)
         stop = ast.Num(10)
@@ -169,6 +171,7 @@ class TestBasicConversions(unittest.TestCase):
         )
         self._check(py_ast, c_ast)
 
+    @unittest.skipIf(sys.version_info.major == 3, "Different ast.Call class in Python 3")
     def test_for_3_args(self):
         start = ast.Num(2)
         stop = ast.Num(10)
@@ -187,6 +190,7 @@ class TestBasicConversions(unittest.TestCase):
         )
         self._check(py_ast, c_ast)
 
+    @unittest.skipIf(sys.version_info.major == 3, "Different ast.Call class in Python 3")
     def test_for_0_args(self):
         py_ast = ast.For(ast.Name("i", ast.Load()),
             ast.Call(ast.Name("range", ast.Load()), [], [], None, None),
@@ -196,6 +200,7 @@ class TestBasicConversions(unittest.TestCase):
         with self.assertRaises(Exception):
           self._check(py_ast, None)
 
+    @unittest.skipIf(sys.version_info.major == 3, "Different ast.Call class in Python 3")
     def test_for_4_args(self):
         py_ast = ast.For(ast.Name("i", ast.Load()),
             ast.Call(ast.Name("range", ast.Load()),
@@ -206,6 +211,7 @@ class TestBasicConversions(unittest.TestCase):
         with self.assertRaises(Exception):
           self._check(py_ast, None)
 
+    @unittest.skipIf(sys.version_info.major == 3, "Different ast.Call class in Python 3")
     def test_for_expr_args(self):
         start = ast.BinOp(ast.Num(2), ast.Add(), ast.Num(3))
         stop = ast.BinOp(ast.Num(4), ast.Mult(), ast.Num(10))

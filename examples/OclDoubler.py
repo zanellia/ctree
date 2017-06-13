@@ -147,9 +147,3 @@ def main():
 if __name__ == '__main__':
     # Testing conventional (non-lambda) kernel function implementation
     main()
-
-    # Testing lambda kernel function implementation
-    double = lambda x: x * 2
-    square = lambda x: x * x
-    main()
-
