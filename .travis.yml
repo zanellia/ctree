@@ -22,6 +22,7 @@ before_install:
       export LD_LIBRARY_PATH=${AMDAPPSDK}/lib/x86_64:${LD_LIBRARY_PATH};
       chmod +x ${AMDAPPSDK}/bin/x86_64/clinfo;
       ${AMDAPPSDK}/bin/x86_64/clinfo;
+      find ${AMDAPPSDK} -name libOpenCL*;
     fi;
   - sudo apt-get install -qq opencl-headers
 install:
@@ -30,14 +31,10 @@ install:
   - if [ $PY_MAJOR_MINOR \< "3.0" ]; then pip install opentuner; fi
   - pip install coverage nose pycl
   - cp .travis.cfg ctree/defaults.cfg
-  - env
-  - ls ${AMDAPPSDK}
-  - ls ${AMDAPPSDK}/lib
-  - ls ${AMDAPPSDK}/lib/x86_64
-  - find ${AMDAPPSDK} -name libOpenCL*
   - nosetests --version
   - coverage --version
   - python setup.py install
+  - env
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - nosetests --verbose --with-coverage --cover-package=ctree --cover-min-percentage=87
