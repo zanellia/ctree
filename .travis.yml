@@ -29,6 +29,12 @@ install:
   - pip install -r requirements.txt
   - if [ $PY_MAJOR_MINOR \< "3.0" ]; then pip install opentuner; fi
   - pip install coverage nose pycl
+  - cp .travis.cfg ctree/defaults.cfg
+  - env
+  - ls ${AMDAPPSDK}
+  - ls ${AMDAPPSDK}/lib
+  - ls ${AMDAPPSDK}/lib/x86_64
+  - find ${AMDAPPSDK} -name libOpenCL*
   - nosetests --version
   - coverage --version
   - python setup.py install
