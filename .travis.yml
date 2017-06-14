@@ -40,7 +40,7 @@ install:
   - python setup.py install
 script:
   - cd ${TRAVIS_BUILD_DIR}
-  - nosetests --verbose --with-coverage --cover-package=ctree --cover-min-percentage=90
+  - nosetests --verbose --with-coverage --cover-package=ctree --cover-min-percentage=87
     --cover-erase
 after_success:
   - curl -X POST http://readthedocs.org/build/ctree
