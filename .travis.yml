@@ -13,14 +13,14 @@ before_install:
   - if [ $TRAVIS_OS_NAME = "linux" ]; then
       bash .travis/amd_sdk.sh;
       tar -xjf AMD-SDK.tar.bz2;
-      AMDAPPSDK=/usr;
+      AMDAPPSDK=${HOME}/AMDAPPSDK;
       export OPENCL_VENDOR_PATH=${AMDAPPSDK}/etc/OpenCL/vendors;
       mkdir -p ${OPENCL_VENDOR_PATH};
-      sudo sh AMD-APP-SDK*.sh --tar -xf -C ${AMDAPPSDK};
-      sudo echo libamdocl64.so > ${OPENCL_VENDOR_PATH}/amdocl64.icd;
+      sh AMD-APP-SDK*.sh --tar -xf -C ${AMDAPPSDK};
+      echo libamdocl64.so > ${OPENCL_VENDOR_PATH}/amdocl64.icd;
       export PYCL_OPENCL=${AMDAPPSDK}/lib/x86_64/libOpenCL.so;
       export LD_LIBRARY_PATH=${AMDAPPSDK}/lib/x86_64:${LD_LIBRARY_PATH};
-      sudo chmod +x ${AMDAPPSDK}/bin/x86_64/clinfo;
+      chmod +x ${AMDAPPSDK}/bin/x86_64/clinfo;
       ${AMDAPPSDK}/bin/x86_64/clinfo;
     fi;
   - sudo apt-get install -qq opencl-headers
@@ -29,6 +29,7 @@ install:
   - pip install -r requirements.txt
   - if [ $PY_MAJOR_MINOR \< "3.0" ]; then pip install opentuner; fi
   - pip install coverage nose pycl
+  - cp .travis.cfg ctree/defaults.cfg
   - env
   - ls ${AMDAPPSDK}
   - ls ${AMDAPPSDK}/lib
