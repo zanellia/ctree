@@ -1,9 +1,12 @@
 import ctypes
 import sys
+from ctree.transforms.declaration_filler import DeclarationFiller
 
 from ctree.types import get_ctype, get_common_ctype
 from util import CtreeTest
-from ctree.c.nodes import SymbolRef, FunctionDecl
+from ctree.c.nodes import SymbolRef, FunctionDecl, Assign, ArrayRef, \
+    Constant, MultiNode, Dot
+
 
 class TestTypeRecognizer(CtreeTest):
     def test_int(self):
@@ -87,3 +90,25 @@ class TestTypeCoercion(CtreeTest):
     def test_coercion(self):
         types = (ctypes.c_long, ctypes.c_double, ctypes.c_int)
         self.assertEqual(get_common_ctype(types), ctypes.c_double)
+
+
+class TestBinaryOpTypeInference(CtreeTest):
+    def test_array_ref(self):
+        tree = MultiNode([
+            SymbolRef("foo", ctypes.POINTER(ctypes.c_double)()),
+            Assign(SymbolRef("____temp__x"), ArrayRef(SymbolRef("foo"), Constant(0)))
+        ])
+        DeclarationFiller().visit(tree)
+        self._check_code(tree, "\ndouble* foo;\n"
+                               "double ____temp__x = foo[0];\n")
+
+    def test_dot(self):
+        op = SymbolRef("op")
+        setattr(op, "get_type", lambda: ctypes.c_char())
+
+        foo = SymbolRef("foo")
+        setattr(foo, "get_type", lambda: ctypes.c_double())
+
+        tree = Assign(SymbolRef("x"), Dot(foo, op))
+        DeclarationFiller().visit(tree)
+        self._check_code(tree, "char x = foo . op")
