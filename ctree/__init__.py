@@ -141,6 +141,15 @@ def get_ast(func):
     return ctree.frontend.get_ast(func)
 
 
+def generate_ast_png(tree):
+    """
+    convenience method to generate an image 
+    in png format of an AST 
+    """
+    import ctree.dotgen
+    return DotManager.dot_ast_to_png(tree)
+
+
 def ipython_show_ast(tree):
     """
     convenience method to display an AST in ipython

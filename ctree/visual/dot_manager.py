@@ -9,6 +9,11 @@ class DotManager(object):
     """
 
     @staticmethod
+    def dot_ast_to_png(ast_node):
+        dot_text = ast_node.to_dot()
+        return DotManager.dot_text_to_png(dot_text)
+
+    @staticmethod
     def dot_ast_to_image(ast_node):
         dot_text = ast_node.to_dot()
         return DotManager.dot_text_to_image(dot_text)
@@ -46,6 +51,22 @@ class DotManager(object):
             return Image(dot_output, embed=True)
         except:
             return None
+
+    @staticmethod
+    def dot_text_to_png(text):
+        dot_output = DotManager.run_dot(text)
+
+        stream = dot_output
+
+        import sys
+        from PIL import Image
+        from io import BytesIO
+        image = Image.open(BytesIO(stream))
+        image.show()
+        return 0
+        # try:
+        # except:
+        #     return None
 
     @staticmethod
     def run_dot(code, options=None, output_format='png', file_name=None):

@@ -65,7 +65,7 @@ class DotGenVisitor(NodeVisitor):
             for index, child in enumerate_flatten(fieldvalue):
                 if isinstance(child, ast.AST):
                     suffix = "".join(["[%d]" % i for i in index])
-                    out_string += 'n{} -> n{} [label="{}{}"];\n'.format(
+                    out_string += 'n{} -> n{} [label=" {}{} "];\n'.format(
                         id(node), id(child), fieldname, suffix)
                     out_string += self.visit(child)
         return out_string
